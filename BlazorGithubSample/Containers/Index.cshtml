@@ -1,24 +1,45 @@
 ﻿@page "/"
 @inject HttpClient httpClient
+@using Microsoft.AspNetCore.Blazor.Browser.Interop
 
 <div class="container">
 
-<h1 style="margin-bottom:20px">Blazor GitHub Search Sample</h1>
+    <h1 style="margin-bottom:20px">Blazor GitHub Search Sample</h1>
 
-<div style="margin-bottom:20px">
-    <SearchForm searchClicked="@searchClicked" />
-</div>
+    <div style="margin-bottom:20px">
+        <SearchForm searchClicked="@searchClicked" />
+    </div>
 
-<div>
-    <SearchResultList searchResult="@searchResult" isFetching="@isFetching" />
-</div>
+    <div>
+        <SearchResultList searchResult="@searchResult" isFetching="@isFetching" rowClicked="@openRepositoryDetail" />
+    </div>
+
+    <RepositoryDetail item="@selectedRepository" isModalOpen="@isModalOpen" closeModal="@closeRepositoryDetail" />
 
 </div>
 
 @functions {
     private SearchResult searchResult { get; set; }
 
+    private Item selectedRepository { get; set; }
+
     private bool isFetching { get; set; } = false;
+
+    private bool isModalOpen { get; set; } = false;
+
+    private void openRepositoryDetail(int id) {
+        Console.WriteLine($"Repository ID {id} selected.");
+        selectedRepository = searchResult.items.FirstOrDefault(i => i.id == id);
+        isModalOpen = true;
+        StateHasChanged();
+    }
+
+    private void closeRepositoryDetail() {
+        Console.WriteLine($"Close button clicked.");
+        selectedRepository = null;
+        isModalOpen = false;
+        StateHasChanged();
+    }
 
     private async void searchClicked(string keyword) {
         isFetching = true;
@@ -33,7 +54,7 @@
         Console.WriteLine($"Current searchKeyword is {keyword}");
 
         var requestUri = $"https://api.github.com/search/repositories?q={escapedKeyword}";
-        try { 
+        try {
             searchResult = await httpClient.GetJsonAsync<SearchResult>(requestUri);
         }
         catch {

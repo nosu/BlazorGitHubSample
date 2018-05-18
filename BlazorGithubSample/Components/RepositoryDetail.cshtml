@@ -1,0 +1,82 @@
+﻿@using Microsoft.AspNetCore.Blazor.Browser.Interop
+
+<div class="modal fade" id="repositoryDetail" tabindex="-1" role="dialog" aria-labelledby="repositoryDetailLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="repositoryDetailLabel">Detail of @item?.name</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="@onCloseClick">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>Owner</td>
+                            <td>@item?.owner.login</td>
+                        </tr>
+                        <tr>
+                            <td>Language</td>
+                            <td>@item?.language</td>
+                        </tr>
+                        <tr>
+                            <td>Score</td>
+                            <td>@item?.score</td>
+                        </tr>
+                        <tr>
+                            <td>Watchers Count</td>
+                            <td>@item?.watchers_count</td>
+                        </tr>
+                        <tr>
+                            <td>Stars Count</td>
+                            <td>@item?.stargazers_count</td>
+                        </tr>
+                        <tr>
+                            <td>Forks Count</td>
+                            <td>@item?.forks_count</td>
+                        </tr>
+                        <tr>
+                            <td>Issues Count</td>
+                            <td>@item?.open_issues_count</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="@onCloseClick">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    [Parameter]
+    private Item item { get; set; }
+
+    [Parameter]
+    private bool isModalOpen { get; set; }
+
+    [Parameter]
+    private Action closeModal { get; set; }
+
+    public override void SetParameters(ParameterCollection parameters) {
+        Console.WriteLine($"SetParameters on RepositoryDetail. Parameters:");
+        foreach(var item in parameters.ToDictionary()) {
+            Console.WriteLine($"  Key: {item.Key}, Value: {item.Value}");
+        }
+
+        bool _isModalOpen = parameters.GetValueOrDefault<bool>((nameof(isModalOpen)));
+        if(_isModalOpen) {
+            RegisteredFunction.Invoke<bool>("openModal", "");
+        } else {
+            RegisteredFunction.Invoke<bool>("closeModal", "");
+        }
+
+        base.SetParameters(parameters);
+    }
+
+    private void onCloseClick() {
+        closeModal();
+    }
+}

@@ -25,4 +25,8 @@
     <BlazorGenerate Remove="Components\SearchResultList.cshtml" />
   </ItemGroup>
 
+  <ItemGroup>
+    <BlazorGenerate Remove="Components\RepositoryDetail.cshtml" />
+  </ItemGroup>
+
 </Project>
