@@ -1,0 +1,46 @@
+﻿@page "/"
+@inject HttpClient httpClient
+
+<div class="container">
+
+<h1 style="margin-bottom:20px">Blazor GitHub Search Sample</h1>
+
+<div style="margin-bottom:20px">
+    <SearchForm searchClicked="@searchClicked" />
+</div>
+
+<div>
+    <SearchResultList searchResult="@searchResult" isFetching="@isFetching" />
+</div>
+
+</div>
+
+@functions {
+    private SearchResult searchResult { get; set; }
+
+    private bool isFetching { get; set; } = false;
+
+    private async void searchClicked(string keyword) {
+        isFetching = true;
+        StateHasChanged();
+
+        var escapedKeyword = "";
+        if(!string.IsNullOrEmpty(keyword)) {
+            escapedKeyword = Uri.EscapeDataString(keyword);
+        }
+
+        Console.WriteLine($"Click event on Index");
+        Console.WriteLine($"Current searchKeyword is {keyword}");
+
+        var requestUri = $"https://api.github.com/search/repositories?q={escapedKeyword}";
+        try { 
+            searchResult = await httpClient.GetJsonAsync<SearchResult>(requestUri);
+        }
+        catch {
+            Console.WriteLine($"Failed to get result from GitHub.");
+        }
+
+        isFetching = false;
+        StateHasChanged();
+    }
+}
